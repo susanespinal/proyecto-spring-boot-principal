@@ -28,6 +28,47 @@
 
 ```CREATE DATABASE ecommerce_inventory;```
 
+## Comando a ejecutar
+```
+docker exec -it kafka bash
+
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic ecommerce.products.created \
+  --partitions 5 \
+  --replication-factor 1 \
+  --config cleanup.policy=compact
+
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic ecommerce.orders.placed \
+  --partitions 5 \
+  --replication-factor 1 \
+  --config cleanup.policy=compact
+
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic ecommerce.orders.confirmed \
+  --partitions 5 \
+  --replication-factor 1 \
+  --config cleanup.policy=compact
+
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic ecommerce.orders.cancelled \
+  --partitions 5 \
+  --replication-factor 1 \
+  --config cleanup.policy=compact
+
+kafka-topics --bootstrap-server localhost:9092 \
+  --create \
+  --topic ecommerce.inventory.updated \
+  --partitions 5 \
+  --replication-factor 1 \
+  --config cleanup.policy=compact
+
+```
+
 ## Uso de EndPoint (PostMan)
 
 ## PRODUCTS
@@ -78,7 +119,7 @@ inventory/
 ```
 ┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
 │  product-service    │      │   order-service     │      │ inventory-service   │
-│  (puerto 9090)      │      │   (puerto 8081)     │      │  (puerto 8082)      │
+│  (puerto 9090)      │      │   (puerto 9091)     │      │  (puerto 9093)      │
 ├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
 │ PostgreSQL          │      │ PostgreSQL          │      │ PostgreSQL          │
 │ ecommerce           │      │ ecommerce_orders    │      │ ecommerce_inventory │
