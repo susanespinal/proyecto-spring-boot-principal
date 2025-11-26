@@ -2,23 +2,39 @@
 
 ## Configuraciones:
  Configuraciones a tomar en cuenta
-  
+ 
+### Variables de entorno
+```
+${DB_USER} :ecommerce_user
+${DB_PASSWORD} :ecommerce_pasword
+${DB_HOST} :localhost
+${DB_PORT} :3000
+${DB_NAME} :ecommerce
+${SERVER_PORT} : 9090
+```
 ### 1.- Spring
 - server:
-  
-  **port:** 9090 (Products)
-  
-  **port:** 9091 (Orders)
-
-  **port:** 9093 (Inventory)
-  
+  ```
+  port: 9090 (Products)
+  port: 9091 (Orders)
+  port: 9093 (Inventory)
+  port: 9094 (Analytics Service)
+  ```
 ### 2.- Postgres
 - port:
-      - "3000"
+       "3000"
 
 ### 2.- Kafka
 - port:
-      - "9092"
+       "9092"
+
+## Repositorios Base de Datos
+### GitHub
+* Product-Service:  (https://github.com/susanespinal/product-service)
+
+* Inventory-Service:  (https://github.com/susanespinal/inventory-service)
+
+* Orders-Service:  (https://github.com/susanespinal/order-service)
   
 ## Creacción de base de datos (Adicionales) 
 
@@ -28,7 +44,7 @@
 
 ```CREATE DATABASE ecommerce_inventory;```
 
-## Comando a ejecutar
+## Comando a ejecutar (TOPIC)
 ```
 docker exec -it kafka bash
 
@@ -68,6 +84,132 @@ kafka-topics --bootstrap-server localhost:9092 \
   --config cleanup.policy=compact
 
 ```
+### Aquitectura Product-Service
+```
+product/
+ ├── controller/
+ │    ├── CategoryController.java
+ |    ├── ProductController.java
+ |    └── KafkaTestController.java
+ ├── dto/
+ │    ├── CategoryRequest.java
+ │    ├── CategoryResponse.java
+ │    ├── ErrorResponse.java
+ │    ├── ProductRequest.java
+ │    ├── ProductResponse.java
+ │    └── ProductSummaryResponse.java
+ ├── exceptions/
+ │    ├── CategoryAlreadyExistsException.java
+ │    ├── GlobalExceptionHandler.java
+ │    └── ResourceNotFoundException.java
+ ├── kafka/
+ |    └── consumer/
+ |         └──
+ |    └── event/
+ |         └── ProductCreatedEvent.java
+ |    └── producer/
+ |         └── ProductEventProducer
+ ├── mapper/
+ │    └── ProductMapper.java
+ ├── model/
+ │    ├── Category.java
+ │    └── Product.java
+ ├── repository/
+ │    ├── CategoryRepository.java
+ │    └── ProductRepository.java
+ ├── service/
+ │    ├── CategoryService.java
+ │    └── ProductService.java
+ └── ProductServiceApplication.java
+      
+```
+
+### Aquitectura Inventory-Service
+```
+inventory/
+ ├── controller/
+ |    └── InventoryController.java
+ ├── dto/
+ │    ├── ErrorResponse.java
+ │    ├── InventoryItemRequest.java
+ │    └── InventoryItemResponse.java
+ ├── exceptions/
+ │    ├── GlobalExceptionHandler.java
+ │    └── ResourceNotFoundException.java
+ ├── kafka/
+ |    └── consumer/
+ |         └── OrderEventConsumer.java
+ |    └── event/
+ │         ├── InventoryUpdateEvent.java
+ │         ├── OrderCancelledEvent.java
+ │         ├── OrderConfirmedEvent.java
+ │         └── OrderPlacedEvent.java
+ |    └── producer/
+ |         └── InventoryEventProducer
+ ├── mapper/
+ │    └── InventoryMapper.java
+ ├── model/
+ │    └── Entity /
+ │         └── InventoryItem.java
+ ├── repository/
+ │    └── InventoryRepository.java
+ ├── service/
+ │    └── InventoryService.java
+ └── InventoryServiceApplication.java
+```
+
+### Aquitectura Orders-Service
+```
+orders/
+ ├── controller/
+ |    └── OrdersController.java
+ ├── dto/
+ │    ├── ErrorResponse.java
+ │    ├── OrdersRequest.java
+ │    └── OrdersResponse.java
+ ├── exceptions/
+ │    ├── GlobalExceptionHandler.java
+ │    └── ResourceNotFoundException.java
+ ├── kafka/
+ |    └── consumer/
+ |         └── OrderEventConsumer.java
+ |    └── event/
+ │         ├── OrderCancelledEvent.java
+ │         ├── OrderConfirmedEvent.java
+ │         └── OrderPlacedEvent.java
+ |    └── producer/
+ |         └── OrderEventProducer
+ ├── mapper/
+ │    └── OrderMapper.java
+ ├── model/
+ │    └── Entity /
+ │         ├── Order.java
+ │         └── OrderStatusItem.java
+ ├── repository/
+ │    └── OrderRepository.java
+ ├── service/
+ │    └── OrderService.java
+ └── OrderServiceApplication.java
+```
+
+### Arquitectura final
+3 microservicios
+```
+┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
+│  product-service    │      │   order-service     │      │ inventory-service   │
+│  (puerto 9090)      │      │   (puerto 9091)     │      │  (puerto 9093)      │
+├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
+│ PostgreSQL          │      │ PostgreSQL          │      │ PostgreSQL          │
+│ ecommerce           │      │ ecommerce_orders    │      │ ecommerce_inventory │
+├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
+│ PRODUCER:           │      │ PRODUCER:           │      │ PRODUCER:           │
+│ products.created    │      │ orders.placed       │      │ orders.confirmed    │
+│                     │      │                     │      │ orders.cancelled    │
+│                     │      │ CONSUMER:           │      │                     │
+│                     │      │ orders.confirmed    │      │ CONSUMER:           │
+│                     │      │ orders.cancelled    │      │ orders.placed       │
+└─────────────────────┘      └─────────────────────┘      └─────────────────────┘
+```
 
 ## Uso de EndPoint (PostMan)
 
@@ -94,44 +236,6 @@ kafka-topics --bootstrap-server localhost:9092 \
 ## *-Create Orders*
 
 <img width="757" height="697" alt="image" src="https://github.com/user-attachments/assets/347653fb-02e6-4783-9cca-7c6285a80766" />
-
-### Aquitectura Inventory
-```
-inventory/
- ├── controller/
- │    └── InventoryController.java
- ├── service/
- │    └── InventoryService.java
- ├── dto/
- │    ├── InventoryItemCreateRequest.java
- │    ├── InventoryItemUpdateRequest.java
- │    └── InventoryItemResponse.java
- ├── mapper/
- │    └── InventoryMapper.java
- ├── entity/
- │    └── InventoryItem.java
- └── repository/
-      └── InventoryItemRepository.java
-```
-
-### Arquitectura final
-3 microservicios
-```
-┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
-│  product-service    │      │   order-service     │      │ inventory-service   │
-│  (puerto 9090)      │      │   (puerto 9091)     │      │  (puerto 9093)      │
-├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
-│ PostgreSQL          │      │ PostgreSQL          │      │ PostgreSQL          │
-│ ecommerce           │      │ ecommerce_orders    │      │ ecommerce_inventory │
-├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
-│ PRODUCER:           │      │ PRODUCER:           │      │ PRODUCER:           │
-│ products.created    │      │ orders.placed       │      │ orders.confirmed    │
-│                     │      │                     │      │ orders.cancelled    │
-│                     │      │ CONSUMER:           │      │                     │
-│                     │      │ orders.confirmed    │      │ CONSUMER:           │
-│                     │      │ orders.cancelled    │      │ orders.placed       │
-└─────────────────────┘      └─────────────────────┘      └─────────────────────┘
-```
 
 ## Manejo de Excepciones
 
