@@ -105,7 +105,7 @@ kafka-topics --bootstrap-server localhost:9092 \
 
 ```
 ### Nuevas Dependencias
-#Inventory-Service
+# Inventory-Service
 ```
     <!-- MapStruct -->
     <dependency>
@@ -135,6 +135,14 @@ kafka-topics --bootstrap-server localhost:9092 \
       <version>0.2.0</version>
     </dependency>
 ```
+## Coleccion Postman
+
+Se encuentra la colección dentro del proyecto principal / Postman
+
+(https://github.com/susanespinal/proyecto-spring-boot-principal/tree/main/Postman)
+
+Pruebas finales con puertos correctos para cada servicio
+
 ### Aquitectura Product-Service
 ```
 product/
