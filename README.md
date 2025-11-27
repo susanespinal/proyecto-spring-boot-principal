@@ -35,6 +35,21 @@ Realice algunas modificaciones para trabajar con MapStruct en el proyecto Invent
 
 ## Repositorios Base de Datos
 ### GitHub
+### Clonar Repositorios
+```
+Principal:
+https://github.com/susanespinal/proyecto-spring-boot-principal.git
+
+Product Service:
+https://github.com/susanespinal/product-service.git
+
+Inventory Service:
+https://github.com/susanespinal/inventory-service.git
+
+Order Service:
+https://github.com/susanespinal/order-service.git
+```
+
 * Product-Service:  (https://github.com/susanespinal/product-service)
 
 * Inventory-Service:  (https://github.com/susanespinal/inventory-service)
@@ -43,7 +58,7 @@ Realice algunas modificaciones para trabajar con MapStruct en el proyecto Invent
   
 ## Creacción de base de datos (Adicionales) 
 
-- Creación base de datos independientes **Orders**
+- Creación base de datos independientes **Orders** e **Inventory**
   
 ```CREATE DATABASE ecommerce_orders;```
 
@@ -171,11 +186,14 @@ inventory/
  │    └── InventoryItemResponse.java
  ├── exceptions/
  │    ├── GlobalExceptionHandler.java
+ │    ├── ProductNotFoundException.java
  │    └── ResourceNotFoundException.java
  ├── kafka/
  |    └── consumer/
+ │         ├── ProductServiceClient.java
  |         └── OrderEventConsumer.java
  |    └── event/
+ |         ├── ProductExistenceEvent.java
  │         ├── InventoryUpdateEvent.java
  │         ├── OrderCancelledEvent.java
  │         ├── OrderConfirmedEvent.java
@@ -240,10 +258,11 @@ orders/
 ├─────────────────────┤      ├─────────────────────┤      ├─────────────────────┤
 │ PRODUCER:           │      │ PRODUCER:           │      │ PRODUCER:           │
 │ products.created    │      │ orders.placed       │      │ orders.confirmed    │
-│                     │      │                     │      │ orders.cancelled    │
+│ product.exist       │      │                     │      │ orders.cancelled    │
 │                     │      │ CONSUMER:           │      │                     │
 │                     │      │ orders.confirmed    │      │ CONSUMER:           │
-│                     │      │ orders.cancelled    │      │ orders.placed       │
+│                     │      │ orders.cancelled    │      │ product.exist       │
+|                     |      |                     |      | orders.placed       | 
 └─────────────────────┘      └─────────────────────┘      └─────────────────────┘
 ```
 
@@ -269,11 +288,11 @@ orders/
 
 ## INVENTORY
 
-###*_Create_*
+### *_Create_*
 
 <img width="697" height="701" alt="image" src="https://github.com/user-attachments/assets/729e429d-40a2-4bf5-83b9-cbee73935121" />
 
-###*_List Inventiry_*
+### *_List Inventory_*
 
 <img width="716" height="735" alt="image" src="https://github.com/user-attachments/assets/81d4ae52-cfdd-4567-9bee-ec31dc6b64a1" />
 
@@ -294,21 +313,28 @@ orders/
 
 ## Manejo de Excepciones
 
-#_Product_
+# _Product_
 
 <img width="930" height="672" alt="image" src="https://github.com/user-attachments/assets/e6d5958f-f08f-448b-a5e5-a92a3458b21b" />
 
-#_Orders_
+# _Orders_
 
 <img width="862" height="666" alt="image" src="https://github.com/user-attachments/assets/a10c504b-f6c9-4427-8d2c-43fe5592314f" />
 
 <img width="772" height="632" alt="image" src="https://github.com/user-attachments/assets/f175d24e-32c8-49b8-891e-671e1f67bf9a" />
 
-#_Inventory_*
+# _Inventory_*
 
 <img width="715" height="613" alt="image" src="https://github.com/user-attachments/assets/004cd603-d3c6-4f59-8d59-8754679ee3ed" />
 
 <img width="692" height="605" alt="image" src="https://github.com/user-attachments/assets/2f3c8ba5-d8e4-4860-babe-0c046ed0e6c8" />
+
+## Funcionalidad de Microservicios
+Verifica si el id_product Existe
+<img width="1377" height="373" alt="image" src="https://github.com/user-attachments/assets/3724ded1-f7c1-439b-9a9f-fbac69b92548" />
+
+Crea orden segun stock en inventario
+<img width="890" height="276" alt="image" src="https://github.com/user-attachments/assets/90ef3b45-076a-4c80-9fb9-f053fb330590" />
 
 ## TOPIC Kafka
 
